@@ -1,6 +1,9 @@
-from app import app, github_auth, db
+from app import app, github_auth, goodreads_auth, db
 from flask import render_template, flash, redirect, request, g, session, url_for, jsonify
 from app.github_task import GithubProvider, get_stats_for_day
+from app.goodreads_task import GoodreadsProvider
+from goodreads.session import GoodreadsSession
+import webbrowser
 import datetime
 
 
@@ -67,7 +70,7 @@ def stats():
             stats = stats['stats']
         else:
             stats = {"msg": "IN PROGRESS"}
-            github_stats.delay(token, datetime.datetime.fromordinal(dt))
+            get_stats_for_day.delay(token, datetime.datetime.fromordinal(dt))
 
         result.append(stats)
 

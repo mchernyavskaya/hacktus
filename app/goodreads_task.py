@@ -4,9 +4,8 @@ from goodreads import client
 
 
 class GoodreadsProvider:
-    def __init__(self, token):
-        print(token)
-        self.client = client.GoodreadsClient(token)
+    def __init__(self, key, secret):
+        self.client = client.GoodreadsClient(key, secret)
 
     def run(self, dt):
         return self.client
