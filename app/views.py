@@ -1,16 +1,12 @@
-from app import app, github_auth, goodreads_auth, db
+from app import app, github_auth, db
 from flask import render_template, flash, redirect, request, g, session, url_for, jsonify
-from app.github_task import GithubProvider, get_stats_for_day as github_stats
-from app.goodreads_task import GoodreadsProvider, get_stats_for_day as goodreads_stats
-from goodreads.session import GoodreadsSession
-import webbrowser
-import datetime, os
+from app.github_task import GithubProvider, get_stats_for_day
+import datetime
 
 
 @app.before_request
 def before_request():
     g.user = None
-
 
 @app.route('/')
 @app.route('/index')
