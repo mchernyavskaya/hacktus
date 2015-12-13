@@ -2,6 +2,7 @@ from app import celery, connect_mongo
 import datetime
 import requests
 
+
 class CodeforcesProvider:
     def __init__(self, username):
         self.username = username
@@ -10,7 +11,6 @@ class CodeforcesProvider:
         self.stats = self.db.codeforces.by_day
         self.last_record = self.refresh_last_record()
         self.url = "http://codeforces.com/api/user.status?handle={}&from=1&count={}"
-        self.refresh_submissions()
 
     def refresh_last_record(self):
         cr = self.collection.find({'user': self.username}).sort([('ts', -1)]).limit(1)
@@ -39,7 +39,7 @@ class CodeforcesProvider:
                 ts = datetime.date.fromtimestamp(timestamp).toordinal()
                 if last_ts is None or last_ts < ts:
                     result = True
-        print("Codeforces - checking for new submissions: {}".format(self.username))
+        print("Codeforces -  check if has new submissions: {}".format(self.username))
         return result
 
     def refresh_submissions(self):
@@ -122,3 +122,9 @@ class CodeforcesProvider:
         start_date = end_date - datetime.timedelta(days=7)
         return self.subs_to_stats(self.get_submissions_between(start_date, end_date))
 
+
+@celery.task(name="app.codeforces_task")
+def refresh_stats(name):
+    print("Refreshing CodeForces for {}".format(name))
+    provider = CodeforcesProvider(name)
+    provider.refresh_submissions()

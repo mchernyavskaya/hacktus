@@ -1,7 +1,7 @@
 from app import app, github_auth, db
 from flask import render_template, flash, redirect, request, g, session, url_for, jsonify
 from app.github_task import GithubProvider, get_github_stats_for_day
-from app.codeforces_task import CodeforcesProvider
+from app.codeforces_task import CodeforcesProvider, refresh_stats
 from app.forms import SettingsForm
 import datetime
 from collections import Counter
@@ -110,9 +110,13 @@ def cf_stats():
     name = session['cf_login']
     provider = CodeforcesProvider(name)
     now = datetime.date.today()
-    result['daily'] = provider.get_stats_for_day(name, now)
-    result['weekly'] = provider.get_stats_for_week(name)
-    result['monthly'] = provider.get_stats_for_month(name)
+    if provider.has_new_submissions():
+        result['msg'] = 'IN PROGRESS'
+        refresh_stats.delay(name)
+    else:
+        result['daily'] = provider.get_stats_for_day(name, now)
+        result['weekly'] = provider.get_stats_for_week(name)
+        result['monthly'] = provider.get_stats_for_month(name)
     return jsonify({'result': result})
 
 @app.route('/settings', methods=['GET', 'POST'])
@@ -125,15 +129,6 @@ def settings():
         if 'cf_login' in session:
             form.cf_login.data = session['cf_login']
     return render_template('settings.html', form=form, title='Settings')
-
-@app.route('/codeforces')
-def codeforces():
-    if 'cf_login' not in session:
-        return redirect(url_for(settings))
-
-    today = datetime.date.today()
-    pr = CodeforcesProvider(session['cf_login'])
-    return jsonify(pr.get_submissions(today))
 
 def get_scores(user):
     scores = Counter()
