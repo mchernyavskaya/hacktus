@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+
+<table>
+    <tr>
+        <td>
+
+<pre>
+<h1>{{user['name'].upper()}}</h1>  <a href="/logout">logout</a>
+
+<b>Hackchievements</b>
+------------------
+
+  Stars:         {{scores['stars']}}
+  Lines of code: {{scores['additions']}}
+
+  Commits made:  {{scores['commit']}}
+
+  Repositories:  {{scores['repos_count']}}
+  Books read:    {{scores['books']}}        (<a href="http://goodreads.com" target="blank">attach account</a>)
+  Challenges:    {{scores['challenges']}}        (<a href="/settings">attach account</a>)
+
+  <b>Level:         {{scores['level']}} {{'*' * scores['level']}}</b>
+
+
+</td>
+<td>
+    <img src="{{user['avatar_url']}}" width=200>
+</td>
+</tr>
+
+<tr>
+<td>
+
+<pre>
+<b>Hacktivities</b>
+------------
+
+{% for day in hacktivities %}{{ day + '\n'}}{% endfor %}
+</pre>
+
+</td>
+</tr>
+
+
+
+</pre>
+
+
+{% endblock %}
+
